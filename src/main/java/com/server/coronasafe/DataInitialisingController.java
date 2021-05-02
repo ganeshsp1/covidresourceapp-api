@@ -65,7 +65,7 @@ public class DataInitialisingController {
 	@RequestMapping("/medicine")
 	public String medicine() throws Exception {
 		
-		 addData("ambulance","https://life-api.coronasafe.network/data/medicine_v2.json");
+		 addData("medicine","https://life-api.coronasafe.network/data/medicine_v2.json");
 		 return "Medicine Added";
 	}
 	

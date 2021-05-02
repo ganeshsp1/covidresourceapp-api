@@ -20,9 +20,11 @@ import java.io.FileInputStream;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.core.ApiFuture;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.firestore.DocumentReference;
+import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.FirestoreOptions;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
@@ -116,5 +118,13 @@ public class CoronasafelifeFirestore {
 			System.out.println("Token: " + document.getString("token"));
 		}
 
+	}
+	
+	public Data getData(String resource) throws InterruptedException, ExecutionException {
+		ApiFuture<DocumentSnapshot> query = db.collection("data").document(resource).get();
+		DocumentSnapshot querySnapshot = query.get();
+		ObjectMapper mapper = new ObjectMapper();
+		Data data = mapper.convertValue(querySnapshot.getData(), Data.class);
+		return data;
 	}
 }
