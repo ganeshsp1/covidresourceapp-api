@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package com.example.springboot;
+package com.server.coronasafe;
 
 import java.io.FileInputStream;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import com.example.springboot.models.Data;
 import com.google.api.core.ApiFuture;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.firestore.DocumentReference;
@@ -29,6 +28,7 @@ import com.google.cloud.firestore.FirestoreOptions;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 import com.google.cloud.firestore.WriteResult;
+import com.server.coronasafe.models.Data;
 
 /**
  * A simple Quick start application demonstrating how to connect to Firestore

@@ -1,4 +1,4 @@
-package com.example.springboot.models;
+package com.server.coronasafe.models;
 
 import java.util.List;
 

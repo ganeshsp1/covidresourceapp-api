@@ -1,6 +1,6 @@
-package com.example.springboot.models;
+package com.server.coronasafe.models;
                  
-public class AmbulanceData
+public class ResourceData
 {
     private String upvotes;
 
@@ -13,6 +13,8 @@ public class AmbulanceData
     private String title;
 
     private String verification_status;
+
+    private String Assigned_to;
 
     private String data_name;
 
@@ -33,6 +35,8 @@ public class AmbulanceData
     private String pincode;
 
     private String address;
+
+    private String resource_type;
 
     private String downvotes;
 
@@ -118,6 +122,16 @@ public class AmbulanceData
     public void setVerification_status (String verification_status)
     {
         this.verification_status = verification_status;
+    }
+
+    public String getAssigned_to ()
+    {
+        return Assigned_to;
+    }
+
+    public void setAssigned_to (String Assigned_to)
+    {
+        this.Assigned_to = Assigned_to;
     }
 
     public String getData_name ()
@@ -218,6 +232,16 @@ public class AmbulanceData
     public void setAddress (String address)
     {
         this.address = address;
+    }
+
+    public String getResource_type ()
+    {
+        return resource_type;
+    }
+
+    public void setResource_type (String resource_type)
+    {
+        this.resource_type = resource_type;
     }
 
     public String getDownvotes ()
@@ -353,6 +377,6 @@ public class AmbulanceData
     @Override
     public String toString()
     {
-        return "ClassPojo [upvotes = "+upvotes+", description = "+description+", external_id = "+external_id+", is_duplicate = "+is_duplicate+", title = "+title+", verification_status = "+verification_status+", data_name = "+data_name+", data_id = "+data_id+", price = "+price+", state = "+state+", state_id = "+state_id+", email = "+email+", phone_2 = "+phone_2+", phone_1 = "+phone_1+", pincode = "+pincode+", address = "+address+", downvotes = "+downvotes+", created_by = "+created_by+", source_link = "+source_link+", verified_by = "+verified_by+", deleted = "+deleted+", last_verified_on = "+last_verified_on+", created_on = "+created_on+", district = "+district+", created_job = "+created_job+", comment = "+comment+", district_id = "+district_id+", category = "+category+", quantity_available = "+quantity_available+"]";
+        return "ClassPojo [upvotes = "+upvotes+", description = "+description+", external_id = "+external_id+", is_duplicate = "+is_duplicate+", title = "+title+", verification_status = "+verification_status+", Assigned_to = "+Assigned_to+", data_name = "+data_name+", data_id = "+data_id+", price = "+price+", state = "+state+", state_id = "+state_id+", email = "+email+", phone_2 = "+phone_2+", phone_1 = "+phone_1+", pincode = "+pincode+", address = "+address+", resource_type = "+resource_type+", downvotes = "+downvotes+", created_by = "+created_by+", source_link = "+source_link+", verified_by = "+verified_by+", deleted = "+deleted+", last_verified_on = "+last_verified_on+", created_on = "+created_on+", district = "+district+", created_job = "+created_job+", comment = "+comment+", district_id = "+district_id+", category = "+category+", quantity_available = "+quantity_available+"]";
     }
 }

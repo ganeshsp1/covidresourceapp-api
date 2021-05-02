@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.springboot;
+package com.server.coronasafe;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -27,10 +27,10 @@ import java.nio.charset.Charset;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.springboot.models.Data;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.server.coronasafe.models.Data;
 
 @RestController
 @RequestMapping("/initialise")

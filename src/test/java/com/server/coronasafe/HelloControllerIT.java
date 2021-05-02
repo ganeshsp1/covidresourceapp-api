@@ -1,4 +1,4 @@
-package com.example.springboot;
+package com.server.coronasafe;
 
 import static org.assertj.core.api.Assertions.*;
 
