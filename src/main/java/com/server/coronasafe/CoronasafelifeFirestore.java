@@ -20,6 +20,7 @@ import java.io.FileInputStream;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.core.ApiFuture;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -124,6 +125,7 @@ public class CoronasafelifeFirestore {
 		ApiFuture<DocumentSnapshot> query = db.collection("data").document(resource).get();
 		DocumentSnapshot querySnapshot = query.get();
 		ObjectMapper mapper = new ObjectMapper();
+		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		Data data = mapper.convertValue(querySnapshot.getData(), Data.class);
 		return data;
 	}

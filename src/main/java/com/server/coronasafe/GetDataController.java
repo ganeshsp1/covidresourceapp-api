@@ -15,15 +15,10 @@
  */
 package com.server.coronasafe;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
-
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.server.coronasafe.models.Data;
 
@@ -33,52 +28,40 @@ public class GetDataController {
 
 	@RequestMapping("/activeDistricts")
 	public String activeDistricts() throws Exception {		
-		return getDataString(getData("active_district_data"));
+		return FirebaseUtil.getDataString(FirebaseUtil.getData("active_district_data"));
 	}
 
 	@RequestMapping("/ambulance")
 	public String ambulance() throws Exception {		
-		return getDataString(getData("ambulance"));
+		return FirebaseUtil.getDataString(FirebaseUtil.getData("ambulance"));
 	}
 
 	@RequestMapping("/helpline")
 	public String helpline() throws Exception {		
-		return getDataString(getData("helpline"));
+		return FirebaseUtil.getDataString(FirebaseUtil.getData("helpline"));
 	}
 
 	@RequestMapping("/hospitals")
 	public String hospitals() throws Exception {		
-		return getDataString(getData("hospitals"));
+		return FirebaseUtil.getDataString(FirebaseUtil.getData("hospitals"));
 	}
 
 	@RequestMapping("/medicine")
 	public String medicine() throws Exception {		
-		return getDataString(getData("medicine"));
+		return FirebaseUtil.getDataString(FirebaseUtil.getData("medicine"));
 	}
 
 	@RequestMapping("/oxygen")
 	public String oxygen() throws Exception {		
-		return getDataString(getData("oxygen"));
+		return FirebaseUtil.getDataString(FirebaseUtil.getData("oxygen"));
+	}
+	
+	@RequestMapping("/users")
+	public String users() throws Exception {		
+		return FirebaseUtil.getUsers();
 	}
 
-	private String getDataString(Data data) throws JsonProcessingException {
-		ObjectMapper mapper = new ObjectMapper();
-		String jsonString = mapper.writeValueAsString(data);
-		return jsonString;
-	}
-
-	private Data getData(String resource) throws MalformedURLException, IOException, ProtocolException, JsonProcessingException,
-	JsonMappingException, Exception {
-		String projectId = "coronasafe-life";
-		CoronasafelifeFirestore cryptoFirestore = (projectId != null) ? new CoronasafelifeFirestore(projectId) : new CoronasafelifeFirestore();
-		Data data = cryptoFirestore.getData(resource);
-		cryptoFirestore.close();
-		return data;
-	}
-
-	@RequestMapping("/")
-	public String index() throws Exception {
-		return "Greetings from Spring Boot!";
-	}
+	
+	
 
 }
