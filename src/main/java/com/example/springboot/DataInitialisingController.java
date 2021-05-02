@@ -38,7 +38,7 @@ public class DataInitialisingController {
 
 	@RequestMapping("/activeDistricts")
 	public String activeDistricts() throws Exception {		
-		 addData("active_district_data","https://life-api.coronasafe.network/data/active_district_data.json");
+		 addData("active_district_data","https://life-api.coronasafe.network/data/active_district_data_v2.json");
 		return "Active District Data Added!";
 	}
 	
@@ -54,6 +54,26 @@ public class DataInitialisingController {
 		
 		 addData("helpline","https://life-api.coronasafe.network/data/helpline_v2.json");
 		 return "Helpline Data Added";
+	}
+	
+	@RequestMapping("/hospitals")
+	public String hospitals() throws Exception {		
+		 addData("hospitals","	https://life-api.coronasafe.network/data/hospital_v2.json");
+		return "Hospitals Data Added!";
+	}
+	
+	@RequestMapping("/medicine")
+	public String medicine() throws Exception {
+		
+		 addData("ambulance","https://life-api.coronasafe.network/data/medicine_v2.json");
+		 return "Medicine Added";
+	}
+	
+	@RequestMapping("/oxygen")
+	public String oxygen() throws Exception {
+		
+		 addData("oxygen","https://life-api.coronasafe.network/data/oxygen_v2.json");
+		 return "Oxygen Data Added";
 	}
 
 	private void addData(String resource, String urlPath) throws MalformedURLException, IOException, ProtocolException, JsonProcessingException,
