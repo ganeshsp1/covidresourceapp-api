@@ -1,3 +1,18 @@
+/*
+ * Copyright 2021 CovidWarriors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.example.springboot;
 
 import java.io.BufferedReader;
@@ -8,8 +23,6 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,7 +33,8 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
-public class HelloController {
+@RequestMapping("/initialise")
+public class DataInitialisingController {
 
 	@RequestMapping("/activeDistricts")
 	public String activeDistricts() throws Exception {		
@@ -51,10 +65,8 @@ public class HelloController {
 		conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
 		conn.setRequestMethod("GET");
 		conn.connect();
-
-		//Getting the response code
-		responsecode = conn.getResponseCode();
 		
+		responsecode = conn.getResponseCode();		
 		
 		if (responsecode != 200) {
 		    throw new RuntimeException("HttpResponseCode: " + responsecode + "  msg "+ conn.getResponseMessage());
@@ -67,17 +79,12 @@ public class HelloController {
 			while ((line = r.readLine()) != null) {
 			    sb.append(line);
 			}
-//			System.out.println(sb.toString());
 			
 			ObjectMapper objectMapper = new ObjectMapper();
 			Data details = objectMapper.readValue(sb.toString(),Data.class);
-//		    System.out.println(details);
-		    
-		    
-		    
 		    String projectId = "coronasafe-life";
 		    CoronasafelifeFirestore cryptoFirestore = (projectId != null) ? new CoronasafelifeFirestore(projectId) : new CoronasafelifeFirestore();
-		    cryptoFirestore.run(details,resource);
+		    cryptoFirestore.addData(details,resource);
 		    cryptoFirestore.close();
 
 		}
