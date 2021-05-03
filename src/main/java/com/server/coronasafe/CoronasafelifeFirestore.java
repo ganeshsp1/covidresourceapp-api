@@ -17,6 +17,7 @@
 package com.server.coronasafe;
 
 import java.io.FileInputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -32,6 +33,8 @@ import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
 import com.google.cloud.firestore.WriteResult;
 import com.server.coronasafe.models.Data;
+import com.server.coronasafe.models.ResourceQuery;
+import com.server.coronasafe.models.User;
 
 /**
  * A simple Quick start application demonstrating how to connect to Firestore
@@ -98,7 +101,7 @@ public class CoronasafelifeFirestore {
 
 		DocumentReference docRef = db.collection("data").document(resource);
 		ApiFuture<WriteResult> result = docRef.create(details);
-		
+
 		System.out.println(result.toString());
 	}
 
@@ -108,19 +111,33 @@ public class CoronasafelifeFirestore {
 		db.close();
 	}
 
-	public void getAllUsers() throws InterruptedException, ExecutionException {
+	public List<User> getAllUsers() throws InterruptedException, ExecutionException {
 		ApiFuture<QuerySnapshot> query = db.collection("Users").get();
-		// ...
-		// query.get() blocks on response
 		QuerySnapshot querySnapshot = query.get();
 		List<QueryDocumentSnapshot> documents = querySnapshot.getDocuments();
+		List<User> usersList = new ArrayList<User>();
 		for (QueryDocumentSnapshot document : documents) {
 			System.out.println("User: " + document.getId());
 			System.out.println("Token: " + document.getString("token"));
+			ObjectMapper mapper = new ObjectMapper();
+			mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+			User user = mapper.convertValue(document.getData(), User.class);
+			List<ResourceQuery> resourceQueries = new ArrayList<ResourceQuery>();
+
+			QuerySnapshot resourceQuerySnapshot  = document.getReference().collection("queries").get().get();
+			for(QueryDocumentSnapshot resourceQueryDocument: resourceQuerySnapshot.getDocuments()) {
+				ResourceQuery resourceQuery = mapper.convertValue(resourceQueryDocument.getData(), ResourceQuery.class);
+				resourceQueries.add(resourceQuery);
+			}
+			user.setQueries(resourceQueries);
+			usersList.add(user);
 		}
 
+		return usersList;
+
 	}
-	
+
 	public Data getData(String resource) throws InterruptedException, ExecutionException {
 		ApiFuture<DocumentSnapshot> query = db.collection("data").document(resource).get();
 		DocumentSnapshot querySnapshot = query.get();

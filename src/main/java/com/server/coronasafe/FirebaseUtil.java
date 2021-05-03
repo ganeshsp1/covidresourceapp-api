@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.server.coronasafe.models.Data;
 import com.server.coronasafe.models.ResourceData;
+import com.server.coronasafe.models.User;
 
 public class FirebaseUtil {
 
@@ -102,7 +103,7 @@ public class FirebaseUtil {
 	 * @return
 	 * @throws JsonProcessingException
 	 */
-	public static String getDataString(Data data) throws JsonProcessingException {
+	public static String getDataString(Object data) throws JsonProcessingException {
 		ObjectMapper mapper = new ObjectMapper();
 		String jsonString = mapper.writeValueAsString(data);
 		return jsonString;
@@ -127,10 +128,10 @@ public class FirebaseUtil {
 		return ret;
 	}
 
-	public static String getUsers() throws Exception {
+	public static List<User> getUsers() throws Exception {
 		CoronasafelifeFirestore cryptoFirestore = (projectId != null) ? new CoronasafelifeFirestore(projectId) : new CoronasafelifeFirestore();
-		cryptoFirestore.getAllUsers();
+		List<User> usersList = cryptoFirestore.getAllUsers();
 		cryptoFirestore.close();
-		return "Done";
+		return usersList;
 	}
 }

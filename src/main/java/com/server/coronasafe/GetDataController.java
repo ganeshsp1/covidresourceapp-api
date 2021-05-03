@@ -58,7 +58,7 @@ public class GetDataController {
 	
 	@RequestMapping("/users")
 	public String users() throws Exception {		
-		return FirebaseUtil.getUsers();
+		return FirebaseUtil.getDataString(FirebaseUtil.getUsers());
 	}
 
 	
