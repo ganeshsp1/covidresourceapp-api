@@ -582,6 +582,9 @@ public class ResourceData
 		return true;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
@@ -647,74 +650,6 @@ public class ResourceData
 		builder.append(category);
 		builder.append(", quantity_available=");
 		builder.append(quantity_available);
-		builder.append(", getUpvotes()=");
-		builder.append(getUpvotes());
-		builder.append(", getDescription()=");
-		builder.append(getDescription());
-		builder.append(", getExternal_id()=");
-		builder.append(getExternal_id());
-		builder.append(", getIs_duplicate()=");
-		builder.append(getIs_duplicate());
-		builder.append(", getTitle()=");
-		builder.append(getTitle());
-		builder.append(", getVerification_status()=");
-		builder.append(getVerification_status());
-		builder.append(", getAssigned_to()=");
-		builder.append(getAssigned_to());
-		builder.append(", getData_name()=");
-		builder.append(getData_name());
-		builder.append(", getData_id()=");
-		builder.append(getData_id());
-		builder.append(", getPrice()=");
-		builder.append(getPrice());
-		builder.append(", getState()=");
-		builder.append(getState());
-		builder.append(", getState_id()=");
-		builder.append(getState_id());
-		builder.append(", getEmail()=");
-		builder.append(getEmail());
-		builder.append(", getPhone_2()=");
-		builder.append(getPhone_2());
-		builder.append(", getPhone_1()=");
-		builder.append(getPhone_1());
-		builder.append(", getPincode()=");
-		builder.append(getPincode());
-		builder.append(", getAddress()=");
-		builder.append(getAddress());
-		builder.append(", getResource_type()=");
-		builder.append(getResource_type());
-		builder.append(", getDownvotes()=");
-		builder.append(getDownvotes());
-		builder.append(", getCreated_by()=");
-		builder.append(getCreated_by());
-		builder.append(", getSource_link()=");
-		builder.append(getSource_link());
-		builder.append(", getVerified_by()=");
-		builder.append(getVerified_by());
-		builder.append(", getDeleted()=");
-		builder.append(getDeleted());
-		builder.append(", getLast_verified_on()=");
-		builder.append(getLast_verified_on());
-		builder.append(", getCreated_on()=");
-		builder.append(getCreated_on());
-		builder.append(", getDistrict()=");
-		builder.append(getDistrict());
-		builder.append(", getCreated_job()=");
-		builder.append(getCreated_job());
-		builder.append(", getComment()=");
-		builder.append(getComment());
-		builder.append(", getDistrict_id()=");
-		builder.append(getDistrict_id());
-		builder.append(", getCategory()=");
-		builder.append(getCategory());
-		builder.append(", getQuantity_available()=");
-		builder.append(getQuantity_available());
-		builder.append(", getClass()=");
-		builder.append(getClass());
-		builder.append(", hashCode()=");
-		builder.append(hashCode());
-		builder.append(", toString()=");
-		builder.append(super.toString());
 		builder.append("]");
 		return builder.toString();
 	}

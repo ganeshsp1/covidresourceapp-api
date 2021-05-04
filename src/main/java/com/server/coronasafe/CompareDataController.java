@@ -24,22 +24,29 @@ public class CompareDataController {
 
 	@RequestMapping("/ambulance")
 	public String compareAmbulance() throws Exception {		
-		return FirebaseUtil.getDataString(FirebaseUtil.compareData("https://life-api.coronasafe.network/data/ambulance_v2.json","ambulance"));
+		return FirebaseUtil.getDataString(FirebaseUtil.compareData(ResourcesEnum.AMBULANCE));
 	}
 	
 	@RequestMapping("/hospitals")
 	public String compareHospitals() throws Exception {		
-		return FirebaseUtil.getDataString(FirebaseUtil.compareData("https://life-api.coronasafe.network/data/hospital_v2.json","hospitals"));
+		return FirebaseUtil.getDataString(FirebaseUtil.compareData(ResourcesEnum.HOSPITALS));
 	}
 	
 	@RequestMapping("/medicine")
 	public String compareMedicine() throws Exception {		
-		return FirebaseUtil.getDataString(FirebaseUtil.compareData("https://life-api.coronasafe.network/data/medicine_v2.json","medicine"));
+		return FirebaseUtil.getDataString(FirebaseUtil.compareData(ResourcesEnum.MEDICINE));
 	}
 	
 	@RequestMapping("/oxygen")
 	public String compareOxygen() throws Exception {		
-		return FirebaseUtil.getDataString(FirebaseUtil.compareData("https://life-api.coronasafe.network/data/oxygen_v2.json","oxygen"));
+		return FirebaseUtil.getDataString(FirebaseUtil.compareData(ResourcesEnum.OXYGEN));
 	}
+	
+	@RequestMapping("/resources")
+	public void findResources() throws Exception {		
+		 FirebaseUtil.sendMessages();
+	}
+	
+	
 
 }
