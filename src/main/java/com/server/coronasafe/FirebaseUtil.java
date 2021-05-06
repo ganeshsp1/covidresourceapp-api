@@ -1,6 +1,7 @@
 package com.server.coronasafe;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -36,15 +37,14 @@ import com.server.coronasafe.models.User;
 
 public class FirebaseUtil {
 
-	static final String projectId = "coronasafe-life";
 
 	static {
 		try {
-			GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream("coronasafe-life-firebase-adminsdk-9w2x4-0b766bc577.json"))
+			GoogleCredentials credentials = GoogleCredentials.fromStream(new ByteArrayInputStream(System.getenv("FIREBASE_JSON").getBytes()))
 			        .createScoped(Lists.newArrayList("https://www.googleapis.com/auth/cloud-platform"));
 			FirebaseOptions options = FirebaseOptions.builder()
 				    .setCredentials(credentials)
-				    .setDatabaseUrl("https://"+projectId+".firebaseio.com/")
+				    .setDatabaseUrl("https://"+System.getenv("PROJECT_ID")+".firebaseio.com/")
 				    .build();
 
 			FirebaseApp.initializeApp(options);
@@ -69,7 +69,7 @@ public class FirebaseUtil {
 		Data details = getDataFromAPI(urlPath);
 
 
-		CoronasafelifeFirestore cryptoFirestore = (projectId != null) ? new CoronasafelifeFirestore(projectId) : new CoronasafelifeFirestore();
+		CoronasafelifeFirestore cryptoFirestore = new CoronasafelifeFirestore(System.getenv("PROJECT_ID"));
 		cryptoFirestore.addData(details,resource);
 		cryptoFirestore.close();
 
@@ -119,7 +119,7 @@ public class FirebaseUtil {
 	 */
 	public static Data getData(String resource) throws MalformedURLException, IOException, ProtocolException, JsonProcessingException,
 	JsonMappingException, Exception {
-		CoronasafelifeFirestore cryptoFirestore = (projectId != null) ? new CoronasafelifeFirestore(projectId) : new CoronasafelifeFirestore();
+		CoronasafelifeFirestore cryptoFirestore = new CoronasafelifeFirestore(System.getenv("PROJECT_ID"));
 		Data data = cryptoFirestore.getData(resource);
 		cryptoFirestore.close();
 		return data;
@@ -151,7 +151,7 @@ public class FirebaseUtil {
 	}
 
 	public static List<User> getUsers() throws Exception {
-		CoronasafelifeFirestore cryptoFirestore = (projectId != null) ? new CoronasafelifeFirestore(projectId) : new CoronasafelifeFirestore();
+		CoronasafelifeFirestore cryptoFirestore = new CoronasafelifeFirestore(System.getenv("PROJECT_ID"));
 		List<User> usersList = cryptoFirestore.getAllUsers();
 		cryptoFirestore.close();
 		return usersList;
