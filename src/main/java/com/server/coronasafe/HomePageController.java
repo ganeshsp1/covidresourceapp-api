@@ -16,6 +16,7 @@
 package com.server.coronasafe;
 
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -25,5 +26,13 @@ public class HomePageController {
 	public String index() throws Exception {
 	    return "Welcome to Covid Warriors Homepage";
 	}
+	
+	@RequestMapping("/testmessage")
+	public String index(@RequestParam(name="token", required = true) String registrationToken) throws Exception {
+		FirebaseUtil.testSendMessage(registrationToken);
+	    return "Message send to "+registrationToken+" successfully!";
+	}
+	
+	
 
 }

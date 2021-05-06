@@ -1,15 +1,12 @@
 package com.server.coronasafe.models;
 
-import java.util.List;
-
-
 public class ResourceQuery
 {
 	private boolean active;
 	private String state;
 	private String district;
 	private Timestamp lastmodified;	
-    private List<String> resources;
+    private String resource;
 	/**
 	 * @return the active
 	 */
@@ -61,14 +58,14 @@ public class ResourceQuery
 	/**
 	 * @return the resources
 	 */
-	public List<String> getResources() {
-		return resources;
+	public String getResource() {
+		return resource;
 	}
 	/**
 	 * @param resources the resources to set
 	 */
-	public void setResources(List<String> resources) {
-		this.resources = resources;
+	public void setResources(String resource) {
+		this.resource = resource;
 	}
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
@@ -80,7 +77,7 @@ public class ResourceQuery
 		result = prime * result + (active ? 1231 : 1237);
 		result = prime * result + ((district == null) ? 0 : district.hashCode());
 		result = prime * result + ((lastmodified == null) ? 0 : lastmodified.hashCode());
-		result = prime * result + ((resources == null) ? 0 : resources.hashCode());
+		result = prime * result + ((resource == null) ? 0 : resource.hashCode());
 		result = prime * result + ((state == null) ? 0 : state.hashCode());
 		return result;
 	}
@@ -108,10 +105,10 @@ public class ResourceQuery
 				return false;
 		} else if (!lastmodified.equals(other.lastmodified))
 			return false;
-		if (resources == null) {
-			if (other.resources != null)
+		if (resource == null) {
+			if (other.resource != null)
 				return false;
-		} else if (!resources.equals(other.resources))
+		} else if (!resource.equals(other.resource))
 			return false;
 		if (state == null) {
 			if (other.state != null)
@@ -135,7 +132,7 @@ public class ResourceQuery
 		builder.append(", lastmodified=");
 		builder.append(lastmodified);
 		builder.append(", resources=");
-		builder.append(resources);
+		builder.append(resource);
 		builder.append("]");
 		return builder.toString();
 	}

@@ -198,7 +198,15 @@ public class FirebaseUtil {
 		System.out.println("Response : " + response);
 
 	}
-
+	
+	public static void testSendMessage(String registrationToken) throws FirebaseMessagingException
+	{
+		Message message = Message.builder()
+				.putData("message","Hello World")
+				.setToken(registrationToken)
+				.build();
+		FirebaseMessaging.getInstance().send(message);
+	}
 	private static List<ResourceData> compareAllData() throws Exception{
 
 		List<ResourceData> finalResourceList = new ArrayList<ResourceData>();
@@ -225,7 +233,7 @@ public class FirebaseUtil {
 						(query)-> 
 						p.getDistrict().equals(query.getDistrict())
 						&& p.getState().equals(query.getState())
-						&& query.getResources().contains(p.getCategory()));
+						&& query.getResource().equals(p.getCategory()));
 			};
 		}
 
