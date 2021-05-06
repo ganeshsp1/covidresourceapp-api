@@ -16,6 +16,7 @@
 
 package com.server.coronasafe;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,14 +57,13 @@ public class CoronasafelifeFirestore {
 		this.db = db;
 	}
 
-	public CoronasafelifeFirestore(String projectId) throws Exception {
-		FileInputStream serviceAccount = new FileInputStream("coronasafe-life-firebase-adminsdk-9w2x4-0b766bc577.json");	
+	public CoronasafelifeFirestore(String projectId) throws Exception {	
 		// [START fs_initialize_project_id]
 		// [START firestore_setup_client_create_with_project_id]
 		FirestoreOptions firestoreOptions =
 				FirestoreOptions.getDefaultInstance().toBuilder()
 				.setProjectId(projectId)
-				.setCredentials(GoogleCredentials.fromStream(serviceAccount))
+				.setCredentials(GoogleCredentials.fromStream(new ByteArrayInputStream(System.getenv("FIREBASE_JSON").getBytes())))
 				.build();
 		Firestore db = firestoreOptions.getService();
 		// [END firestore_setup_client_create_with_project_id]
