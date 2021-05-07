@@ -56,6 +56,11 @@ public class GetDataController {
 		return FirebaseUtil.getDataString(FirebaseUtil.getData("oxygen"));
 	}
 	
+	@RequestMapping("/food")
+	public String food() throws Exception {		
+		return FirebaseUtil.getDataString(FirebaseUtil.getData("food"));
+	}
+	
 	@RequestMapping("/users")
 	public String users() throws Exception {		
 		return FirebaseUtil.getDataString(FirebaseUtil.getUsers());

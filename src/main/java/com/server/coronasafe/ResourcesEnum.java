@@ -8,7 +8,11 @@ public enum ResourcesEnum {
 	
 	HOSPITALS("https://life-api.coronasafe.network/data/hospital_v2.json","hospitals"),
 	
-	MEDICINE("https://life-api.coronasafe.network/data/medicine_v2.json","medicine");
+	MEDICINE("https://life-api.coronasafe.network/data/medicine_v2.json","medicine"),
+	
+	FOOD("https://life-api.coronasafe.network/data/food_v2.json","food"),
+	
+	HELPLINE("https://life-api.coronasafe.network/data/helpline_v2.json","helpline");
 	
 	
 	String urlPath;

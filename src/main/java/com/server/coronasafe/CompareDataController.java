@@ -42,6 +42,11 @@ public class CompareDataController {
 		return FirebaseUtil.getDataString(FirebaseUtil.compareData(ResourcesEnum.OXYGEN));
 	}
 	
+	@RequestMapping("/food")
+	public String compareFood() throws Exception {		
+		return FirebaseUtil.getDataString(FirebaseUtil.compareData(ResourcesEnum.FOOD));
+	}
+	
 	@RequestMapping("/resources")
 	public void findResources() throws Exception {		
 		 FirebaseUtil.sendMessages();

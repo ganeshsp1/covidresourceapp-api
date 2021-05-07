@@ -41,11 +41,11 @@ public class FirebaseUtil {
 	static {
 		try {
 			GoogleCredentials credentials = GoogleCredentials.fromStream(new ByteArrayInputStream(System.getenv("FIREBASE_JSON").getBytes()))
-			        .createScoped(Lists.newArrayList("https://www.googleapis.com/auth/cloud-platform"));
+					.createScoped(Lists.newArrayList("https://www.googleapis.com/auth/cloud-platform"));
 			FirebaseOptions options = FirebaseOptions.builder()
-				    .setCredentials(credentials)
-				    .setDatabaseUrl("https://"+System.getenv("PROJECT_ID")+".firebaseio.com/")
-				    .build();
+					.setCredentials(credentials)
+					.setDatabaseUrl("https://"+System.getenv("PROJECT_ID")+".firebaseio.com/")
+					.build();
 
 			FirebaseApp.initializeApp(options);
 		} catch (IOException e) {
@@ -63,8 +63,7 @@ public class FirebaseUtil {
 	 * @throws JsonMappingException
 	 * @throws Exception
 	 */
-	public static void addDataFromAPI(String resource, String urlPath) throws MalformedURLException, IOException, ProtocolException, JsonProcessingException,
-	JsonMappingException, Exception {
+	public static void addDataFromAPI(String resource, String urlPath) throws Exception {
 
 		Data details = getDataFromAPI(urlPath);
 
@@ -73,6 +72,10 @@ public class FirebaseUtil {
 		cryptoFirestore.addData(details,resource);
 		cryptoFirestore.close();
 
+	}
+
+	public static void addDataFromAPI(ResourcesEnum resource) throws Exception {
+		addDataFromAPI(resource.getResource(), resource.getUrlPath());
 	}
 
 	/**
@@ -198,7 +201,7 @@ public class FirebaseUtil {
 		System.out.println("Response : " + response);
 
 	}
-	
+
 	public static void testSendMessage(String registrationToken) throws FirebaseMessagingException
 	{
 		Message message = Message.builder()

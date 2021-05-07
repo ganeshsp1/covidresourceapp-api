@@ -31,7 +31,7 @@ public class DataInitialisingController {
 	@RequestMapping("/ambulance")
 	public String ambulance() throws Exception {
 		
-		 FirebaseUtil.addDataFromAPI("ambulance","https://life-api.coronasafe.network/data/ambulance_v2.json");
+		 FirebaseUtil.addDataFromAPI(ResourcesEnum.AMBULANCE);
 		 return "Ambulance Data Added";
 	}
 	
@@ -44,27 +44,29 @@ public class DataInitialisingController {
 	
 	@RequestMapping("/hospitals")
 	public String hospitals() throws Exception {		
-		 FirebaseUtil.addDataFromAPI("hospitals","https://life-api.coronasafe.network/data/hospital_v2.json");
+		 FirebaseUtil.addDataFromAPI(ResourcesEnum.HOSPITALS);
 		return "Hospitals Data Added!";
 	}
 	
 	@RequestMapping("/medicine")
 	public String medicine() throws Exception {
 		
-		 FirebaseUtil.addDataFromAPI("medicine","https://life-api.coronasafe.network/data/medicine_v2.json");
+		 FirebaseUtil.addDataFromAPI(ResourcesEnum.MEDICINE);
 		 return "Medicine Added";
 	}
 	
 	@RequestMapping("/oxygen")
 	public String oxygen() throws Exception {
 		
-		 FirebaseUtil.addDataFromAPI("oxygen","https://life-api.coronasafe.network/data/oxygen_v2.json");
+		 FirebaseUtil.addDataFromAPI(ResourcesEnum.OXYGEN);
 		 return "Oxygen Data Added";
 	}
 	
-	@RequestMapping("/")
-	public String index() throws Exception {
-		return "Greetings from Spring Boot!";
+	@RequestMapping("/food")
+	public String food() throws Exception {
+		
+		 FirebaseUtil.addDataFromAPI(ResourcesEnum.FOOD);
+		 return "Oxygen Data Added";
 	}
 
 }
