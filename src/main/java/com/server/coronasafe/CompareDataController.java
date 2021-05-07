@@ -24,27 +24,27 @@ public class CompareDataController {
 
 	@RequestMapping("/ambulance")
 	public String compareAmbulance() throws Exception {		
-		return FirebaseUtil.getDataString(FirebaseUtil.compareData(ResourcesEnum.AMBULANCE));
+		return FirebaseUtil.getDataString(FirebaseUtil.compareFoodData(ResourcesEnum.AMBULANCE));
 	}
 	
-	@RequestMapping("/hospitals")
+	@RequestMapping("/hospital")
 	public String compareHospitals() throws Exception {		
-		return FirebaseUtil.getDataString(FirebaseUtil.compareData(ResourcesEnum.HOSPITALS));
+		return FirebaseUtil.getDataString(FirebaseUtil.compareFoodData(ResourcesEnum.HOSPITALS));
 	}
 	
 	@RequestMapping("/medicine")
 	public String compareMedicine() throws Exception {		
-		return FirebaseUtil.getDataString(FirebaseUtil.compareData(ResourcesEnum.MEDICINE));
+		return FirebaseUtil.getDataString(FirebaseUtil.compareFoodData(ResourcesEnum.MEDICINE));
 	}
 	
 	@RequestMapping("/oxygen")
 	public String compareOxygen() throws Exception {		
-		return FirebaseUtil.getDataString(FirebaseUtil.compareData(ResourcesEnum.OXYGEN));
+		return FirebaseUtil.getDataString(FirebaseUtil.compareFoodData(ResourcesEnum.OXYGEN));
 	}
 	
 	@RequestMapping("/food")
 	public String compareFood() throws Exception {		
-		return FirebaseUtil.getDataString(FirebaseUtil.compareData(ResourcesEnum.FOOD));
+		return FirebaseUtil.getDataString(FirebaseUtil.compareFoodData(ResourcesEnum.FOOD));
 	}
 	
 	@RequestMapping("/resources")

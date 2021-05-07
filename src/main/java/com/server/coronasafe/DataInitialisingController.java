@@ -65,8 +65,8 @@ public class DataInitialisingController {
 	@RequestMapping("/food")
 	public String food() throws Exception {
 		
-		 FirebaseUtil.addDataFromAPI(ResourcesEnum.FOOD);
-		 return "Oxygen Data Added";
+		 FirebaseUtil.addFoodDataFromAPI(ResourcesEnum.FOOD);
+		 return "Food Data Added";
 	}
 
 }

@@ -6,7 +6,7 @@ public enum ResourcesEnum {
 	
 	AMBULANCE("https://life-api.coronasafe.network/data/ambulance_v2.json","ambulance"),
 	
-	HOSPITALS("https://life-api.coronasafe.network/data/hospital_v2.json","hospitals"),
+	HOSPITALS("https://life-api.coronasafe.network/data/hospital_v2.json","hospital"),
 	
 	MEDICINE("https://life-api.coronasafe.network/data/medicine_v2.json","medicine"),
 	

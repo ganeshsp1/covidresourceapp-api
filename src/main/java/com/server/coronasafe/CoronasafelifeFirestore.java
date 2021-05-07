@@ -17,10 +17,11 @@
 package com.server.coronasafe;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,8 +33,10 @@ import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.FirestoreOptions;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
+import com.google.cloud.firestore.SetOptions;
 import com.google.cloud.firestore.WriteResult;
 import com.server.coronasafe.models.Data;
+import com.server.coronasafe.models.ResourceData;
 import com.server.coronasafe.models.ResourceQuery;
 import com.server.coronasafe.models.User;
 
@@ -100,9 +103,9 @@ public class CoronasafelifeFirestore {
 	void addData( Data details, String resource) throws Exception {
 
 		DocumentReference docRef = db.collection("data").document(resource);
-		ApiFuture<WriteResult> result = docRef.create(details);
+		ApiFuture<WriteResult> result = docRef.set(details);
 
-		System.out.println(result.toString());
+		System.out.println(result.get().getUpdateTime().toString());
 	}
 
 
@@ -139,6 +142,33 @@ public class CoronasafelifeFirestore {
 	}
 
 	public Data getData(String resource) throws InterruptedException, ExecutionException {
+		ApiFuture<DocumentSnapshot> query = db.collection("data").document(resource).get();
+		DocumentSnapshot querySnapshot = query.get();
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		Data data = mapper.convertValue(querySnapshot.getData(), Data.class);
+		return data;
+	}
+
+	public void addFoodData(Data details, String resource) throws InterruptedException, ExecutionException {
+		
+		Map<String, Map<String, List<ResourceData>>> map = details.getData().stream()
+			    .collect(Collectors.groupingBy(ResourceData::getState,
+			        Collectors.groupingBy(ResourceData::getDistrict)));
+		
+		  map.forEach((state, districtMap) -> {
+				  DocumentReference docRef = db.collection("data").document(resource).collection(state).document("districts");
+				  ApiFuture<WriteResult> result = docRef.set(districtMap,SetOptions.merge());
+				  try {
+					System.out.println("Data initialised "+resource+" for "+state+" - "+result.get().getUpdateTime().toString());
+				} catch (InterruptedException | ExecutionException e) {
+					e.printStackTrace();
+				}
+		  });
+		
+	}
+
+	public Data getFoodData(String resource)  throws InterruptedException, ExecutionException {
 		ApiFuture<DocumentSnapshot> query = db.collection("data").document(resource).get();
 		DocumentSnapshot querySnapshot = query.get();
 		ObjectMapper mapper = new ObjectMapper();

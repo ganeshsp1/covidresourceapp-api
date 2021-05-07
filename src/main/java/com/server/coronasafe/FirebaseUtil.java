@@ -2,7 +2,6 @@ package com.server.coronasafe;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -12,18 +11,20 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import org.apache.tomcat.util.json.JSONParser;
+import org.apache.tomcat.util.json.ParseException;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.api.gax.paging.Page;
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.cloud.storage.Bucket;
-import com.google.cloud.storage.Storage;
-import com.google.cloud.storage.StorageOptions;
 import com.google.common.collect.Lists;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
@@ -85,9 +86,16 @@ public class FirebaseUtil {
 	 * @throws IOException
 	 */
 	public static Data getDataFromAPI(String urlPath) throws IOException{
+		String json = getJsonStringFromAPI(urlPath);
+		ObjectMapper objectMapper = new ObjectMapper();
+		objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		Data details = objectMapper.readValue(json,Data.class);
+		return details;
+	}
+
+	private static String getJsonStringFromAPI(String urlPath) throws IOException {
 		int responsecode = 404;
 		URL url = new URL(urlPath);
-		Data details = null;
 		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 		conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
 		conn.setRequestMethod("GET");
@@ -95,18 +103,15 @@ public class FirebaseUtil {
 		responsecode = conn.getResponseCode();		
 		if (responsecode != 200) {
 			throw new RuntimeException("HttpResponseCode: " + responsecode + "  msg "+ conn.getResponseMessage());
-		} else {
-			BufferedReader r  = new BufferedReader(new InputStreamReader(conn.getInputStream(), Charset.forName("UTF-8")));
-			StringBuilder sb = new StringBuilder();
-			String line;
-			while ((line = r.readLine()) != null) {
-				sb.append(line);
-			}
-			ObjectMapper objectMapper = new ObjectMapper();
-			objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-			details = objectMapper.readValue(sb.toString(),Data.class);
+		} 
+
+		BufferedReader r  = new BufferedReader(new InputStreamReader(conn.getInputStream(), Charset.forName("UTF-8")));
+		StringBuilder sb = new StringBuilder();
+		String line;
+		while ((line = r.readLine()) != null) {
+			sb.append(line);
 		}
-		return details;
+		return sb.toString();
 	}
 
 	/**
@@ -214,7 +219,7 @@ public class FirebaseUtil {
 
 		List<ResourceData> finalResourceList = new ArrayList<ResourceData>();
 		for(ResourcesEnum resource: ResourcesEnum.values()) {
-			finalResourceList.addAll(compareResourceData(resource));
+			finalResourceList.addAll(compareFoodResourceData(resource));
 		}
 		return finalResourceList;
 	}
@@ -240,5 +245,37 @@ public class FirebaseUtil {
 			};
 		}
 
+	}
+
+	public static void addFoodDataFromAPI(ResourcesEnum food) throws Exception {
+		Data details = getDataFromAPI(food.getUrlPath());
+		CoronasafelifeFirestore cryptoFirestore = new CoronasafelifeFirestore(System.getenv("PROJECT_ID"));
+		cryptoFirestore.addFoodData(details,food.getResource());
+		cryptoFirestore.close();
+
+	}
+
+	public static Data compareFoodData(ResourcesEnum food) throws Exception {
+		Data ret = new Data();
+		ret.setData(compareFoodResourceData(food));
+		return ret;
+	}
+
+	private static List<ResourceData> compareFoodResourceData(ResourcesEnum resource) throws Exception {
+		Data apiData = getDataFromAPI(resource.getUrlPath());
+		String json = getJsonStringFromAPI("https://api.github.com/repos/coronasafe/life/commits?path=data%2F"+resource.getResource()+"_v2.json&page=1&per_page=1");
+
+		 JSONParser parser = new JSONParser(json);
+	         Object obj = parser.parse();
+	         ArrayList array = (ArrayList)obj;
+	         
+	         Map obj2 = (Map)array.get(0);
+	         System.out.println(obj2.get("sha"));   
+		
+		Data oldApiData = getDataFromAPI("https://raw.githubusercontent.com/coronasafe/life/"+obj2.get("sha")+"/data/"+resource.getResource()+"_v2.json");
+		
+		List<ResourceData> apiList = new ArrayList<ResourceData>(apiData.getData());
+		apiList.removeAll(oldApiData.getData());
+		return apiList;
 	}
 }
