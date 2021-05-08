@@ -18,6 +18,7 @@ package com.server.coronasafe;
 
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -151,21 +152,21 @@ public class CoronasafelifeFirestore {
 	}
 
 	public void addFoodData(Data details, String resource) throws InterruptedException, ExecutionException {
-		
+
 		Map<String, Map<String, List<ResourceData>>> map = details.getData().stream()
-			    .collect(Collectors.groupingBy(ResourceData::getState,
-			        Collectors.groupingBy(ResourceData::getDistrict)));
-		
-		  map.forEach((state, districtMap) -> {
-				  DocumentReference docRef = db.collection("data").document(resource).collection(state).document("districts");
-				  ApiFuture<WriteResult> result = docRef.set(districtMap,SetOptions.merge());
-				  try {
-					System.out.println("Data initialised "+resource+" for "+state+" - "+result.get().getUpdateTime().toString());
-				} catch (InterruptedException | ExecutionException e) {
-					e.printStackTrace();
-				}
-		  });
-		
+				.collect(Collectors.groupingBy(ResourceData::getState,
+						Collectors.groupingBy(ResourceData::getDistrict)));
+
+		map.forEach((state, districtMap) -> {
+			DocumentReference docRef = db.collection("data").document(resource).collection(state).document("districts");
+			ApiFuture<WriteResult> result = docRef.set(districtMap,SetOptions.merge());
+			try {
+				System.out.println("Data initialised "+resource+" for "+state+" - "+result.get().getUpdateTime().toString());
+			} catch (InterruptedException | ExecutionException e) {
+				e.printStackTrace();
+			}
+		});
+
 	}
 
 	public Data getFoodData(String resource)  throws InterruptedException, ExecutionException {
@@ -175,5 +176,18 @@ public class CoronasafelifeFirestore {
 		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		Data data = mapper.convertValue(querySnapshot.getData(), Data.class);
 		return data;
+	}
+
+	public void addLastCheckedCommit(String lastCommit) {
+		DocumentReference docRef = db.collection("compare").document("commit");
+		Map<String, Object> docData = new HashMap<>();
+		docData.put("lastcommit", lastCommit);
+		ApiFuture<WriteResult> result = docRef.set(docData,SetOptions.merge());
+	}
+
+	public Object getLastCheckedCommit() throws InterruptedException, ExecutionException {
+		ApiFuture<DocumentSnapshot> query = db.collection("compare").document("commit").get();
+		DocumentSnapshot querySnapshot = query.get();
+		return querySnapshot.getData().get("lastcommit");
 	}
 }

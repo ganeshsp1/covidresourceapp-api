@@ -152,11 +152,11 @@ public class FirebaseUtil {
 	 * @return
 	 * @throws Exception
 	 */
-	public static Data compareData(ResourcesEnum resource) throws Exception {
-		Data ret = new Data();
-		ret.setData(compareResourceData(resource));
-		return ret;
-	}
+//	public static Data compareData(ResourcesEnum resource) throws Exception {
+//		Data ret = new Data();
+//		ret.setData(compareResourceData(resource));
+//		return ret;
+//	}
 
 	public static List<User> getUsers() throws Exception {
 		CoronasafelifeFirestore cryptoFirestore = new CoronasafelifeFirestore(System.getenv("PROJECT_ID"));
@@ -166,11 +166,14 @@ public class FirebaseUtil {
 	}
 
 
-	public static void sendMessages() throws Exception{
+	public static String sendMessages() throws Exception{
 		List<ResourceData> allData = compareAllData();
+		if(allData==null) {
+			return "No New Data";
+		}
 		List<User> users = getUsers();
 		List<User> activeUsers = users.stream().filter((user)->{return user.isActive();}).collect(Collectors. < User > toList());
-
+		StringBuilder stringBuilder = new StringBuilder();
 		activeUsers.forEach((user) -> {
 			List<ResourceData> finalData = allData.stream()
 					.filter(QueryPredicates.isMatchingQuery(user.getQueries())).collect(Collectors. < ResourceData > toList());
@@ -182,9 +185,11 @@ public class FirebaseUtil {
 				} catch (JsonProcessingException e) {
 					e.printStackTrace();
 				}
+				stringBuilder.append("For User : "+user.getToken()+" resources found : "+finalData.stream().map(ResourceData::getDistrict).collect(Collectors.toList()) );
 				System.out.println("For User : "+user.getToken()+" resources found : "+finalData.stream().map(ResourceData::getDistrict).collect(Collectors.toList()) );
 			}
 		});		
+		return stringBuilder.toString().isEmpty()?" New Data found, but No Alerts Send":stringBuilder.toString();
 
 	}
 
@@ -215,22 +220,46 @@ public class FirebaseUtil {
 				.build();
 		FirebaseMessaging.getInstance().send(message);
 	}
+	/**
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
 	private static List<ResourceData> compareAllData() throws Exception{
+		CoronasafelifeFirestore cryptoFirestore = new CoronasafelifeFirestore(System.getenv("PROJECT_ID"));
+		String currentsha = getCurrentLastCommit(ResourcesEnum.OXYGEN.resource);
+		Object oldsha = cryptoFirestore.getLastCheckedCommit();
+		if(oldsha!=null && currentsha.equals(oldsha)) {
+			return null;
+		}
+		cryptoFirestore.addLastCheckedCommit(currentsha);
+		cryptoFirestore.close();
 
 		List<ResourceData> finalResourceList = new ArrayList<ResourceData>();
 		for(ResourcesEnum resource: ResourcesEnum.values()) {
-			finalResourceList.addAll(compareFoodResourceData(resource));
+			finalResourceList.addAll(compareResourceData(resource,currentsha));
 		}
 		return finalResourceList;
 	}
 
-	private static List<ResourceData> compareResourceData(ResourcesEnum resource) throws Exception {
-		Data apiData = getDataFromAPI(resource.getUrlPath());
-		Data dbData = getData(resource.getResource());
-		List<ResourceData> apiList = new ArrayList<ResourceData>(apiData.getData());
-		apiList.removeAll(dbData.getData());
-		return apiList;
+	static String getCurrentLastCommit(String resource)throws Exception {
+
+		String json = getJsonStringFromAPI("https://api.github.com/repos/coronasafe/life/commits?path=data%2F"+resource+"_v2.json&page=1&per_page=1");
+		JSONParser parser = new JSONParser(json);
+		Object obj = parser.parse();
+		ArrayList array = (ArrayList)obj;
+		Map obj2 = (Map)array.get(0); 
+		String currentsha = obj2.get("sha").toString();
+		return currentsha;
 	}
+
+//	private static List<ResourceData> compareResourceData(ResourcesEnum resource) throws Exception {
+//		Data apiData = getDataFromAPI(resource.getUrlPath());
+//		Data dbData = getData(resource.getResource());
+//		List<ResourceData> apiList = new ArrayList<ResourceData>(apiData.getData());
+//		apiList.removeAll(dbData.getData());
+//		return apiList;
+//	}
 
 	private static class QueryPredicates {
 
@@ -255,27 +284,19 @@ public class FirebaseUtil {
 
 	}
 
-	public static Data compareFoodData(ResourcesEnum food) throws Exception {
+	public static Data compareData(ResourcesEnum resource,String commitSha) throws Exception {
 		Data ret = new Data();
-		ret.setData(compareFoodResourceData(food));
+		ret.setData(compareResourceData(resource,commitSha));
 		return ret;
 	}
 
-	private static List<ResourceData> compareFoodResourceData(ResourcesEnum resource) throws Exception {
+	private static List<ResourceData> compareResourceData(ResourcesEnum resource,String commitSha) throws Exception {
 		Data apiData = getDataFromAPI(resource.getUrlPath());
-		String json = getJsonStringFromAPI("https://api.github.com/repos/coronasafe/life/commits?path=data%2F"+resource.getResource()+"_v2.json&page=1&per_page=1");
+//		String commitSha = getCurrentLastCommit(resource.getResource());
+		Data oldApiData = getDataFromAPI("https://raw.githubusercontent.com/coronasafe/life/"+commitSha+"/data/"+resource.getResource()+"_v2.json");
 
-		 JSONParser parser = new JSONParser(json);
-	         Object obj = parser.parse();
-	         ArrayList array = (ArrayList)obj;
-	         
-	         Map obj2 = (Map)array.get(0);
-	         System.out.println(obj2.get("sha"));   
-		
-		Data oldApiData = getDataFromAPI("https://raw.githubusercontent.com/coronasafe/life/"+obj2.get("sha")+"/data/"+resource.getResource()+"_v2.json");
-		
-		List<ResourceData> apiList = new ArrayList<ResourceData>(apiData.getData());
-		apiList.removeAll(oldApiData.getData());
-		return apiList;
+		List<ResourceData> comparedDataList = new ArrayList<ResourceData>(apiData.getData());
+		comparedDataList.removeAll(oldApiData.getData());
+		return comparedDataList;
 	}
 }

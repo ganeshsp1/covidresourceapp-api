@@ -24,32 +24,32 @@ public class CompareDataController {
 
 	@RequestMapping("/ambulance")
 	public String compareAmbulance() throws Exception {		
-		return FirebaseUtil.getDataString(FirebaseUtil.compareFoodData(ResourcesEnum.AMBULANCE));
+		return FirebaseUtil.getDataString(FirebaseUtil.compareData(ResourcesEnum.AMBULANCE,FirebaseUtil.getCurrentLastCommit(ResourcesEnum.AMBULANCE.resource)));
 	}
 	
 	@RequestMapping("/hospital")
 	public String compareHospitals() throws Exception {		
-		return FirebaseUtil.getDataString(FirebaseUtil.compareFoodData(ResourcesEnum.HOSPITALS));
+		return FirebaseUtil.getDataString(FirebaseUtil.compareData(ResourcesEnum.HOSPITALS,FirebaseUtil.getCurrentLastCommit(ResourcesEnum.HOSPITALS.resource)));
 	}
 	
 	@RequestMapping("/medicine")
 	public String compareMedicine() throws Exception {		
-		return FirebaseUtil.getDataString(FirebaseUtil.compareFoodData(ResourcesEnum.MEDICINE));
+		return FirebaseUtil.getDataString(FirebaseUtil.compareData(ResourcesEnum.MEDICINE,FirebaseUtil.getCurrentLastCommit(ResourcesEnum.MEDICINE.resource)));
 	}
 	
 	@RequestMapping("/oxygen")
 	public String compareOxygen() throws Exception {		
-		return FirebaseUtil.getDataString(FirebaseUtil.compareFoodData(ResourcesEnum.OXYGEN));
+		return FirebaseUtil.getDataString(FirebaseUtil.compareData(ResourcesEnum.OXYGEN,FirebaseUtil.getCurrentLastCommit(ResourcesEnum.OXYGEN.resource)));
 	}
 	
 	@RequestMapping("/food")
 	public String compareFood() throws Exception {		
-		return FirebaseUtil.getDataString(FirebaseUtil.compareFoodData(ResourcesEnum.FOOD));
+		return FirebaseUtil.getDataString(FirebaseUtil.compareData(ResourcesEnum.FOOD,FirebaseUtil.getCurrentLastCommit(ResourcesEnum.FOOD.resource)));
 	}
 	
 	@RequestMapping("/resources")
-	public void findResources() throws Exception {		
-		 FirebaseUtil.sendMessages();
+	public String findResources() throws Exception {		
+		 return FirebaseUtil.sendMessages();
 	}
 	
 	
