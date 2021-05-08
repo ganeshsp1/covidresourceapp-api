@@ -213,7 +213,7 @@ public class FirebaseUtil {
 			String camelRes = toCamelCase(resourceData.getCategory());
 			Notification notification = Notification.builder()
 					.setTitle(camelRes+" Available !")
-					.setBody(camelRes+" available in "+resourceData.getDistrict()+","+resourceData.getState()).build();
+					.setBody(camelRes+" available in "+resourceData.getDistrict()+", "+resourceData.getState()).build();
 			ObjectMapper oMapper = new ObjectMapper();
 			oMapper.setSerializationInclusion(Include.NON_NULL);
 			Map<String, String> map = oMapper.convertValue(resourceData, Map.class);
