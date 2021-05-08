@@ -172,7 +172,7 @@ public class FirebaseUtil {
 
 	public static String sendMessages() throws Exception{
 		List<ResourceData> allData = compareAllData();
-		if(allData==null) {
+		if(allData==null||allData.isEmpty()) {
 			return "No New Data";
 		}
 		List<User> users = getUsers();
@@ -201,18 +201,31 @@ public class FirebaseUtil {
 		String registrationToken = user.getToken();
 
 		// See documentation on defining a message payload.
+//		Message message = Message.builder()
+//				.putData("resource", getDataString(finalData))
+//				.setToken(registrationToken)
+//				.build();
+
+//		System.out.println("Sending message: " + getDataString(finalData));
+		
+		for(ResourceData resourceData : finalData ) {
+		AndroidConfig config = AndroidConfig.builder()
+				.setPriority(AndroidConfig.Priority.HIGH).build();
+		Notification notification = Notification.builder()
+				.setTitle("Corona Resource Found")
+				.setBody(resourceData.getCategory()+" found in "+resourceData.getDistrict()+","+resourceData.getState()+"!!!").build();
+		ObjectMapper oMapper = new ObjectMapper();
+		Map<String, String> map = oMapper.convertValue(resourceData, Map.class);
+		
 		Message message = Message.builder()
-				.putData("resource", getDataString(finalData))
+				.setNotification(notification )
+				.putAllData(map)
+				.setAndroidConfig(config)
 				.setToken(registrationToken)
 				.build();
-
-		System.out.println("Sending message: " + getDataString(finalData));
-
-		// Send a message to the device corresponding to the provided
-		// registration token.
-		String response = FirebaseMessaging.getInstance().send(message);
-		// Response is a message ID string.
-		System.out.println("Response : " + response);
+		FirebaseMessaging.getInstance().send(message);
+		
+		}
 
 	}
 
@@ -256,11 +269,11 @@ public class FirebaseUtil {
 
 	static String getCurrentLastCommit(String resource)throws Exception {
 
-		String json = getJsonStringFromAPI("https://api.github.com/repos/coronasafe/life/commits?path=data%2F"+resource+"_v2.json&page=1&per_page=1");
+		String json = getJsonStringFromAPI("https://api.github.com/repos/coronasafe/life/commits?path=data%2F"+resource+"_v2.json&page=1&per_page=2");
 		JSONParser parser = new JSONParser(json);
 		Object obj = parser.parse();
 		ArrayList array = (ArrayList)obj;
-		Map obj2 = (Map)array.get(0); 
+		Map obj2 = (Map)array.get(1); 
 		String currentsha = obj2.get("sha").toString();
 		return currentsha;
 	}
