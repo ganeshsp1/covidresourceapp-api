@@ -16,10 +16,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.apache.tomcat.util.json.JSONParser;
-import org.apache.tomcat.util.json.ParseException;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -29,8 +27,6 @@ import com.google.common.collect.Lists;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.messaging.AndroidConfig;
-import com.google.firebase.messaging.ApnsConfig;
-import com.google.firebase.messaging.Aps;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
@@ -179,18 +175,21 @@ public class FirebaseUtil {
 		List<User> activeUsers = users.stream().filter((user)->{return user.isActive();}).collect(Collectors. < User > toList());
 		StringBuilder stringBuilder = new StringBuilder();
 		activeUsers.forEach((user) -> {
-			List<ResourceData> finalData = allData.stream()
-					.filter(QueryPredicates.isMatchingQuery(user.getQueries())).collect(Collectors. < ResourceData > toList());
-			if(finalData!=null && !finalData.isEmpty()) {
-				try {
-					sendMessageToUser(user,finalData);
-				} catch (FirebaseMessagingException e) {
-					e.printStackTrace();
-				} catch (JsonProcessingException e) {
-					e.printStackTrace();
+
+			if(user.getQueries()!=null) {
+				List<ResourceData> finalData = allData.stream()
+						.filter(QueryPredicates.isMatchingQuery(user.getQueries())).collect(Collectors. < ResourceData > toList());
+				if(finalData!=null && !finalData.isEmpty()) {
+					try {
+						sendMessageToUser(user,finalData);
+					} catch (FirebaseMessagingException e) {
+						e.printStackTrace();
+					} catch (JsonProcessingException e) {
+						e.printStackTrace();
+					}
+					stringBuilder.append("For User : "+user.getToken()+" resources found : "+finalData.stream().map(ResourceData::getDistrict).collect(Collectors.toList()) );
+					System.out.println("For User : "+user.getToken()+" resources found : "+finalData.stream().map(ResourceData::getDistrict).collect(Collectors.toList()) );
 				}
-				stringBuilder.append("For User : "+user.getToken()+" resources found : "+finalData.stream().map(ResourceData::getDistrict).collect(Collectors.toList()) );
-				System.out.println("For User : "+user.getToken()+" resources found : "+finalData.stream().map(ResourceData::getDistrict).collect(Collectors.toList()) );
 			}
 		});		
 		return stringBuilder.toString().isEmpty()?" New Data found, but No Alerts Send":stringBuilder.toString();
@@ -201,30 +200,31 @@ public class FirebaseUtil {
 		String registrationToken = user.getToken();
 
 		// See documentation on defining a message payload.
-//		Message message = Message.builder()
-//				.putData("resource", getDataString(finalData))
-//				.setToken(registrationToken)
-//				.build();
+		//		Message message = Message.builder()
+		//				.putData("resource", getDataString(finalData))
+		//				.setToken(registrationToken)
+		//				.build();
 
-//		System.out.println("Sending message: " + getDataString(finalData));
-		
+		//		System.out.println("Sending message: " + getDataString(finalData));
+
 		for(ResourceData resourceData : finalData ) {
-		AndroidConfig config = AndroidConfig.builder()
-				.setPriority(AndroidConfig.Priority.HIGH).build();
-		Notification notification = Notification.builder()
-				.setTitle("Corona Resource Found")
-				.setBody(resourceData.getCategory()+" found in "+resourceData.getDistrict()+","+resourceData.getState()+"!!!").build();
-		ObjectMapper oMapper = new ObjectMapper();
-		Map<String, String> map = oMapper.convertValue(resourceData, Map.class);
-		
-		Message message = Message.builder()
-				.setNotification(notification )
-				.putAllData(map)
-				.setAndroidConfig(config)
-				.setToken(registrationToken)
-				.build();
-		FirebaseMessaging.getInstance().send(message);
-		
+			AndroidConfig config = AndroidConfig.builder()
+					.setPriority(AndroidConfig.Priority.HIGH).build();
+			Notification notification = Notification.builder()
+					.setTitle("Corona Resource Found")
+					.setBody(resourceData.getCategory()+" found in "+resourceData.getDistrict()+","+resourceData.getState()+"!!!").build();
+			ObjectMapper oMapper = new ObjectMapper();
+			oMapper.setSerializationInclusion(Include.NON_NULL);
+			Map<String, String> map = oMapper.convertValue(resourceData, Map.class);
+
+			Message message = Message.builder()
+					.setNotification(notification)
+					.putAllData(map)
+					.setAndroidConfig(config)
+					.setToken(registrationToken)
+					.build();
+			FirebaseMessaging.getInstance().send(message);
+
 		}
 
 	}
