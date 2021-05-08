@@ -211,8 +211,8 @@ public class FirebaseUtil {
 			AndroidConfig config = AndroidConfig.builder()
 					.setPriority(AndroidConfig.Priority.HIGH).build();
 			Notification notification = Notification.builder()
-					.setTitle("Corona Resource Found")
-					.setBody(resourceData.getCategory()+" found in "+resourceData.getDistrict()+","+resourceData.getState()+"!!!").build();
+					.setTitle(resourceData.getCategory()+" Available !!!")
+					.setBody(resourceData.getCategory()+" available in "+resourceData.getDistrict()+","+resourceData.getState()).build();
 			ObjectMapper oMapper = new ObjectMapper();
 			oMapper.setSerializationInclusion(Include.NON_NULL);
 			Map<String, String> map = oMapper.convertValue(resourceData, Map.class);
