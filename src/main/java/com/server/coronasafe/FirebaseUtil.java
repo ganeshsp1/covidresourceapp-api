@@ -28,9 +28,13 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.common.collect.Lists;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
+import com.google.firebase.messaging.AndroidConfig;
+import com.google.firebase.messaging.ApnsConfig;
+import com.google.firebase.messaging.Aps;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
+import com.google.firebase.messaging.Notification;
 import com.server.coronasafe.models.Data;
 import com.server.coronasafe.models.ResourceData;
 import com.server.coronasafe.models.ResourceQuery;
@@ -152,11 +156,11 @@ public class FirebaseUtil {
 	 * @return
 	 * @throws Exception
 	 */
-//	public static Data compareData(ResourcesEnum resource) throws Exception {
-//		Data ret = new Data();
-//		ret.setData(compareResourceData(resource));
-//		return ret;
-//	}
+	//	public static Data compareData(ResourcesEnum resource) throws Exception {
+	//		Data ret = new Data();
+	//		ret.setData(compareResourceData(resource));
+	//		return ret;
+	//	}
 
 	public static List<User> getUsers() throws Exception {
 		CoronasafelifeFirestore cryptoFirestore = new CoronasafelifeFirestore(System.getenv("PROJECT_ID"));
@@ -214,8 +218,16 @@ public class FirebaseUtil {
 
 	public static void testSendMessage(String registrationToken) throws FirebaseMessagingException
 	{
+		AndroidConfig config = AndroidConfig.builder()
+				.setPriority(AndroidConfig.Priority.HIGH).build();
+		Notification notification = Notification.builder()
+				.setTitle("Corona Resource Found")
+				.setBody("Oxygen found in Delhi!!!").build();
 		Message message = Message.builder()
-				.putData("message","Hello World")
+				.setNotification(notification )
+				.putData("volume","2")
+				.putData("address","A 104/2, Sanjay Colony II, Pocket A, Sanjay Colony, Okhla Phase II, Okhla Industrial Area, New Delhi, Delhi 110020")
+				.setAndroidConfig(config)
 				.setToken(registrationToken)
 				.build();
 		FirebaseMessaging.getInstance().send(message);
@@ -253,13 +265,13 @@ public class FirebaseUtil {
 		return currentsha;
 	}
 
-//	private static List<ResourceData> compareResourceData(ResourcesEnum resource) throws Exception {
-//		Data apiData = getDataFromAPI(resource.getUrlPath());
-//		Data dbData = getData(resource.getResource());
-//		List<ResourceData> apiList = new ArrayList<ResourceData>(apiData.getData());
-//		apiList.removeAll(dbData.getData());
-//		return apiList;
-//	}
+	//	private static List<ResourceData> compareResourceData(ResourcesEnum resource) throws Exception {
+	//		Data apiData = getDataFromAPI(resource.getUrlPath());
+	//		Data dbData = getData(resource.getResource());
+	//		List<ResourceData> apiList = new ArrayList<ResourceData>(apiData.getData());
+	//		apiList.removeAll(dbData.getData());
+	//		return apiList;
+	//	}
 
 	private static class QueryPredicates {
 
@@ -292,7 +304,7 @@ public class FirebaseUtil {
 
 	private static List<ResourceData> compareResourceData(ResourcesEnum resource,String commitSha) throws Exception {
 		Data apiData = getDataFromAPI(resource.getUrlPath());
-//		String commitSha = getCurrentLastCommit(resource.getResource());
+		//		String commitSha = getCurrentLastCommit(resource.getResource());
 		Data oldApiData = getDataFromAPI("https://raw.githubusercontent.com/coronasafe/life/"+commitSha+"/data/"+resource.getResource()+"_v2.json");
 
 		List<ResourceData> comparedDataList = new ArrayList<ResourceData>(apiData.getData());
