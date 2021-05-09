@@ -43,7 +43,7 @@ public class FirebaseUtil {
 
 	static {
 		try {
-			GoogleCredentials credentials = GoogleCredentials.fromStream(new ByteArrayInputStream(System.getenv("FIREBASE_JSON").getBytes()))
+			GoogleCredentials credentials = GoogleCredentials.getApplicationDefault()
 					.createScoped(Lists.newArrayList("https://www.googleapis.com/auth/cloud-platform"));
 			FirebaseOptions options = FirebaseOptions.builder()
 					.setCredentials(credentials)
@@ -55,6 +55,7 @@ public class FirebaseUtil {
 			e.printStackTrace();
 		}
 	}
+	
 	/**
 	 * 
 	 * @param resource

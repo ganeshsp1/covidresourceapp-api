@@ -67,7 +67,7 @@ public class CoronasafelifeFirestore {
 		FirestoreOptions firestoreOptions =
 				FirestoreOptions.getDefaultInstance().toBuilder()
 				.setProjectId(projectId)
-				.setCredentials(GoogleCredentials.fromStream(new ByteArrayInputStream(System.getenv("FIREBASE_JSON").getBytes())))
+				.setCredentials(GoogleCredentials.getApplicationDefault())
 				.build();
 		Firestore db = firestoreOptions.getService();
 		// [END firestore_setup_client_create_with_project_id]
