@@ -39,6 +39,8 @@ import com.server.coronasafe.models.User;
 public class FirebaseUtil {
 
 
+	private static final String NOTMODIFIED = "NOTMODIFIED";
+
 	static {
 		try {
 			GoogleCredentials credentials = GoogleCredentials.fromStream(new ByteArrayInputStream(System.getenv("FIREBASE_JSON").getBytes()))
@@ -251,8 +253,9 @@ public class FirebaseUtil {
 	 * @throws Exception
 	 */
 	private static List<ResourceData> compareAllData() throws Exception{
-		CoronasafelifeFirestore cryptoFirestore = new CoronasafelifeFirestore(System.getenv("PROJECT_ID"));
 		String currentsha = getCurrentLastCommit(ResourcesEnum.OXYGEN.resource);
+
+		CoronasafelifeFirestore cryptoFirestore = new CoronasafelifeFirestore(System.getenv("PROJECT_ID"));
 		Object oldsha = cryptoFirestore.getLastCheckedCommit();
 		if(oldsha!=null && currentsha.equals(oldsha)) {
 			return null;
@@ -268,14 +271,48 @@ public class FirebaseUtil {
 	}
 
 	static String getCurrentLastCommit(String resource)throws Exception {
-
-		String json = getJsonStringFromAPI("https://api.github.com/repos/coronasafe/life/commits?path=data%2F"+resource+"_v2.json&page=1&per_page=2");
+		CoronasafelifeFirestore cryptoFirestore = new CoronasafelifeFirestore(System.getenv("PROJECT_ID"));
+		Object eTagObj = cryptoFirestore.getEtag();
+		String etag = eTagObj==null?"":eTagObj.toString();
+		String json = getJsonStringFromAPIIfChanged("https://api.github.com/repos/coronasafe/life/commits?path=data%2F"+resource+"_v2.json&page=1&per_page=2",etag,cryptoFirestore);
+		if(json.equals(NOTMODIFIED)) {
+			String oldSha = cryptoFirestore.getLastCheckedCommit();
+			cryptoFirestore.close();
+			return oldSha;
+		}
+		cryptoFirestore.close();
 		JSONParser parser = new JSONParser(json);
 		Object obj = parser.parse();
 		ArrayList array = (ArrayList)obj;
 		Map obj2 = (Map)array.get(1); 
 		String currentsha = obj2.get("sha").toString();
 		return currentsha;
+	}
+
+	private static String getJsonStringFromAPIIfChanged(String urlPath,String eTag, CoronasafelifeFirestore cryptoFirestore) throws Exception {
+		int responsecode = 404;
+		URL url = new URL(urlPath);
+		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+		conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
+		conn.setRequestProperty("if-none-match", eTag);
+		conn.setRequestMethod("GET");
+		conn.connect();
+		responsecode = conn.getResponseCode();	
+		if(responsecode == 304) {
+			return NOTMODIFIED;
+		}
+		else if (responsecode != 200) {
+			throw new RuntimeException("HttpResponseCode: " + responsecode + "  msg "+ conn.getResponseMessage());
+		} 
+
+		cryptoFirestore.addetag(conn.getHeaderField("etag"));
+		BufferedReader r  = new BufferedReader(new InputStreamReader(conn.getInputStream(), Charset.forName("UTF-8")));
+		StringBuilder sb = new StringBuilder();
+		String line;
+		while ((line = r.readLine()) != null) {
+			sb.append(line);
+		}
+		return sb.toString();
 	}
 
 	//	private static List<ResourceData> compareResourceData(ResourcesEnum resource) throws Exception {

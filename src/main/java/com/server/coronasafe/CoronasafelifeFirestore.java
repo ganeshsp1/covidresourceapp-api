@@ -185,9 +185,22 @@ public class CoronasafelifeFirestore {
 		ApiFuture<WriteResult> result = docRef.set(docData,SetOptions.merge());
 	}
 
-	public Object getLastCheckedCommit() throws InterruptedException, ExecutionException {
+	public String getLastCheckedCommit() throws InterruptedException, ExecutionException {
 		ApiFuture<DocumentSnapshot> query = db.collection("compare").document("commit").get();
 		DocumentSnapshot querySnapshot = query.get();
-		return querySnapshot.getData().get("lastcommit");
+		return (String) querySnapshot.getData().get("lastcommit");
+	}
+
+	public Object getEtag() throws InterruptedException, ExecutionException  {
+		ApiFuture<DocumentSnapshot> query = db.collection("compare").document("etags").get();
+		DocumentSnapshot querySnapshot = query.get();
+		return querySnapshot.getData().get("etag");
+	}
+	
+	public void addetag(String eTag) {
+		DocumentReference docRef = db.collection("compare").document("etags");
+		Map<String, Object> docData = new HashMap<>();
+		docData.put("etag", eTag);
+		ApiFuture<WriteResult> result = docRef.set(docData,SetOptions.merge());
 	}
 }
