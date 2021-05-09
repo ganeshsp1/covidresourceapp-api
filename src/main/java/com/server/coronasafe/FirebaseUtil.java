@@ -212,9 +212,10 @@ public class FirebaseUtil {
 		for(ResourceData resourceData : finalData ) {
 			AndroidConfig config = AndroidConfig.builder()
 					.setPriority(AndroidConfig.Priority.HIGH).build();
+			String camelRes = toCamelCase(resourceData.getCategory());
 			Notification notification = Notification.builder()
-					.setTitle("Corona Resource Found")
-					.setBody(resourceData.getCategory()+" found in "+resourceData.getDistrict()+","+resourceData.getState()+"!!!").build();
+					.setTitle(camelRes+" updated !")
+					.setBody(camelRes+" updated for "+resourceData.getDistrict()+", "+resourceData.getState()).build();
 			ObjectMapper oMapper = new ObjectMapper();
 			oMapper.setSerializationInclusion(Include.NON_NULL);
 			Map<String, String> map = oMapper.convertValue(resourceData, Map.class);
@@ -231,6 +232,23 @@ public class FirebaseUtil {
 
 	}
 
+	 public static String toCamelCase(final String init) {
+    if (init == null)
+        return null;
+
+    final StringBuilder ret = new StringBuilder(init.length());
+
+    for (final String word : init.split(" ")) {
+        if (!word.isEmpty()) {
+            ret.append(Character.toUpperCase(word.charAt(0)));
+            ret.append(word.substring(1).toLowerCase());
+        }
+        if (!(ret.length() == init.length()))
+            ret.append(" ");
+    }
+
+    return ret.toString();
+}
 	public static void testSendMessage(String registrationToken) throws FirebaseMessagingException
 	{
 		AndroidConfig config = AndroidConfig.builder()
