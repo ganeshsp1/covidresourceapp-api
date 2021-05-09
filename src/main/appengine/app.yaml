@@ -1,0 +1,9 @@
+runtime: java
+env: flex
+
+includes:
+  - env_variables.yaml
+  
+handlers:
+  - url: /.*
+    script: this field is required, but ignored
