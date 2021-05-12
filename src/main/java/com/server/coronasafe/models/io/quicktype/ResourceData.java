@@ -2,8 +2,11 @@ package com.server.coronasafe.models.io.quicktype;
 
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
+@JsonInclude(Include.NON_NULL)
 public class ResourceData {
     private String state;
     private String district;

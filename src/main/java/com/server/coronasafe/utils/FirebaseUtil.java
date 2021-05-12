@@ -154,7 +154,7 @@ public class FirebaseUtil {
 			String camelRes = toCamelCase(resourceData.getCategory());
 			Notification notification = Notification.builder()
 					.setTitle(camelRes+" updated !")
-					.setBody(camelRes+" updated for "+resourceData.getDistrict()+", "+resourceData.getState()).build();
+					.setBody(resourceData.getTitle()+" \n "+resourceData.getDistrict()+", "+resourceData.getState()).build();
 			ObjectMapper oMapper = new ObjectMapper();
 			oMapper.setSerializationInclusion(Include.NON_NULL);
 			Map<String, String> map = oMapper.convertValue(resourceData, Map.class);
@@ -193,15 +193,17 @@ public class FirebaseUtil {
 		AndroidConfig config = AndroidConfig.builder()
 				.setPriority(AndroidConfig.Priority.HIGH).build();
 		Notification notification = Notification.builder()
-				.setTitle("Corona Resource Found")
-				.setBody("Oxygen found in Delhi!!!").build();
+				.setTitle("Oxygen updated !")
+				.setBody("Hemkunt Foundation \n Kochi, Kerala").build();
+		ObjectMapper oMapper = new ObjectMapper();
+		oMapper.setSerializationInclusion(Include.NON_NULL);
+
 		Message message = Message.builder()
-				.setNotification(notification )
-				.putData("volume","2")
-				.putData("address","A 104/2, Sanjay Colony II, Pocket A, Sanjay Colony, Okhla Phase II, Okhla Industrial Area, New Delhi, Delhi 110020")
+				.setNotification(notification)
 				.setAndroidConfig(config)
 				.setToken(registrationToken)
 				.build();
+		
 		FirebaseMessaging.getInstance().send(message);
 	}
 	/**
