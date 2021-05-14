@@ -2,6 +2,7 @@ package com.server.coronasafe.utils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -18,27 +19,39 @@ public class WebUtil {
 	 * @return
 	 * @throws IOException
 	 */
-	public static String getJsonStringFromAPI(String urlPath) throws IOException {
-		int responsecode = 404;
-		URL url = new URL(urlPath);
-		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-		conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
-		conn.setRequestMethod("GET");
-		conn.connect();
-		responsecode = conn.getResponseCode();		
-		if (responsecode != 200) {
-			throw new RuntimeException("HttpResponseCode: " + responsecode + "  msg "+ conn.getResponseMessage());
-		} 
-
-		BufferedReader r  = new BufferedReader(new InputStreamReader(conn.getInputStream(), Charset.forName("UTF-8")));
+	public static String getJsonStringFromAPI(String urlPath) throws IOException{
+		InputStream is = null ;
 		StringBuilder sb = new StringBuilder();
-		String line;
-		while ((line = r.readLine()) != null) {
-			sb.append(line);
+		try {
+			int responsecode = 404;
+			URL url = new URL(urlPath);
+			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
+			conn.setRequestMethod("GET");
+			conn.connect();
+			responsecode = conn.getResponseCode();		
+			if (responsecode != 200) {
+				throw new RuntimeException("HttpResponseCode: " + responsecode + "  msg "+ conn.getResponseMessage());
+			} 
+			is = conn.getInputStream();
+			BufferedReader r  = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
+
+			String line;
+			while ((line = r.readLine()) != null) {
+				sb.append(line);
+			}
+		}finally {
+			try {
+				if(is!=null) {
+					is.close();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		return sb.toString();
 	}
-	
+
 	/**
 	 * 
 	 * @param urlPath
@@ -54,7 +67,7 @@ public class WebUtil {
 		Object details = objectMapper.readValue(json,objectClazz);
 		return details;
 	}
-	
+
 	/**
 	 * 
 	 * @param data

@@ -41,7 +41,7 @@ import com.server.coronasafe.models.User;
  * A simple Quick start application demonstrating how to connect to Firestore
  * and add and query documents.
  */
-public class CoronasafelifeFirestore {
+public class CoronasafelifeFirestore implements AutoCloseable{
 
 	private Firestore db;
 	
@@ -63,7 +63,7 @@ public class CoronasafelifeFirestore {
 
 
 	/** Closes the gRPC channels associated with this instance and frees up their resources. */
-	void close() throws Exception {
+	public void close() throws Exception {
 		db.close();
 	}
 

@@ -3,6 +3,7 @@ package com.server.coronasafe.utils;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -50,19 +51,20 @@ public class FirebaseUtil {
 					.setDatabaseUrl("https://"+System.getenv("PROJECT_ID")+".firebaseio.com/")
 					.build();
 
-			FirebaseApp.initializeApp(options);
+			FirebaseApp firebaseApp = FirebaseApp.initializeApp(options);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
 
-	
+
 
 	public static List<User> getUsers() throws Exception {
-		CoronasafelifeFirestore coronasafeFirestore = new CoronasafelifeFirestore();
-		List<User> usersList = coronasafeFirestore.getAllUsers();
-		coronasafeFirestore.close();
+		List<User> usersList = null;
+		try(CoronasafelifeFirestore coronasafeFirestore = new CoronasafelifeFirestore()){
+			usersList = coronasafeFirestore.getAllUsers();
+		}
 		return usersList;
 	}
 
@@ -203,7 +205,7 @@ public class FirebaseUtil {
 				.setAndroidConfig(config)
 				.setToken(registrationToken)
 				.build();
-		
+
 		FirebaseMessaging.getInstance().send(message);
 	}
 	/**
@@ -214,14 +216,14 @@ public class FirebaseUtil {
 	private static List<ResourceData> compareAllData() throws Exception{
 		String currentsha = getCurrentLastCommit(ResourcesEnum.OXYGEN.getResource());
 
-		CoronasafelifeFirestore coronasafeFirestore = new CoronasafelifeFirestore();
-		Object oldsha = coronasafeFirestore.getLastCheckedCommit();
-		if(oldsha!=null && currentsha.equals(oldsha)) {
-			return null;
+		try(CoronasafelifeFirestore coronasafeFirestore = new CoronasafelifeFirestore()){
+			Object oldsha = coronasafeFirestore.getLastCheckedCommit();
+			if(oldsha!=null && currentsha.equals(oldsha)) {
+				return null;
+			}
+			coronasafeFirestore.addLastCheckedCommit(currentsha);
+			coronasafeFirestore.close();
 		}
-		coronasafeFirestore.addLastCheckedCommit(currentsha);
-		coronasafeFirestore.close();
-
 		List<ResourceData> finalResourceList = new ArrayList<ResourceData>();
 		for(ResourcesEnum resource: ResourcesEnum.values()) {
 			finalResourceList.addAll(compareResourceData(resource,currentsha));
@@ -230,46 +232,54 @@ public class FirebaseUtil {
 	}
 
 	public static String getCurrentLastCommit(String resource)throws Exception {
-		CoronasafelifeFirestore coronasafeFirestore = new CoronasafelifeFirestore();
-		Object eTagObj = coronasafeFirestore.getEtag();
-		String etag = eTagObj==null?"":eTagObj.toString();
-		String json = getJsonStringFromAPIIfChanged("https://api.github.com/repos/coronasafe/life/commits?path=data%2F"+resource+"_v2.json&page=1&per_page=2",etag,coronasafeFirestore);
-		if(json.equals(NOTMODIFIED)) {
-			String oldSha = coronasafeFirestore.getLastCheckedCommit();
+		String json = null;
+		try (CoronasafelifeFirestore coronasafeFirestore = new CoronasafelifeFirestore()){
+			Object eTagObj = coronasafeFirestore.getEtag();
+			String etag = eTagObj==null?"":eTagObj.toString();
+			json = getJsonStringFromAPIIfChanged("https://api.github.com/repos/coronasafe/life/commits?path=data%2F"+resource+"_v2.json&page=1&per_page=2",etag,coronasafeFirestore);
+			if(json.equals(NOTMODIFIED)) {
+				String oldSha = coronasafeFirestore.getLastCheckedCommit();
+				coronasafeFirestore.close();
+				return oldSha;
+			}
 			coronasafeFirestore.close();
-			return oldSha;
 		}
-		coronasafeFirestore.close();
 		JSONParser parser = new JSONParser(json);
 		Object obj = parser.parse();
-		ArrayList array = (ArrayList)obj;
-		Map obj2 = (Map)array.get(1); 
-		String currentsha = obj2.get("sha").toString();
+		String currentsha = ((Map)((ArrayList)obj).get(1)).get("sha").toString();		
 		return currentsha;
 	}
 
 	private static String getJsonStringFromAPIIfChanged(String urlPath,String eTag, CoronasafelifeFirestore coronasafeFirestore) throws Exception {
 		int responsecode = 404;
 		URL url = new URL(urlPath);
-		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-		conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
-		conn.setRequestProperty("if-none-match", eTag);
-		conn.setRequestMethod("GET");
-		conn.connect();
-		responsecode = conn.getResponseCode();	
-		if(responsecode == 304) {
-			return NOTMODIFIED;
-		}
-		else if (responsecode != 200) {
-			throw new RuntimeException("HttpResponseCode: " + responsecode + "  msg "+ conn.getResponseMessage());
-		} 
-
-		coronasafeFirestore.addetag(conn.getHeaderField("etag"));
-		BufferedReader r  = new BufferedReader(new InputStreamReader(conn.getInputStream(), Charset.forName("UTF-8")));
+		InputStream is = null;
 		StringBuilder sb = new StringBuilder();
-		String line;
-		while ((line = r.readLine()) != null) {
-			sb.append(line);
+		try {
+			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
+			conn.setRequestProperty("if-none-match", eTag);
+			conn.setRequestMethod("GET");
+			conn.connect();
+			responsecode = conn.getResponseCode();	
+			if(responsecode == 304) {
+				return NOTMODIFIED;
+			}
+			else if (responsecode != 200) {
+				throw new RuntimeException("HttpResponseCode: " + responsecode + "  msg "+ conn.getResponseMessage());
+			} 
+
+			coronasafeFirestore.addetag(conn.getHeaderField("etag"));
+			is  = conn.getInputStream();
+			BufferedReader r  = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
+			String line;
+			while ((line = r.readLine()) != null) {
+				sb.append(line);
+			}
+		}finally {
+			if(is!=null) {
+				is.close();
+			}
 		}
 		return sb.toString();
 	}
@@ -289,13 +299,13 @@ public class FirebaseUtil {
 		}
 
 	}
-	public static Data compareData(ResourcesEnum resource,String commitSha) throws Exception {
+	public static Data compareData(ResourcesEnum resource,String commitSha) throws IOException{
 		Data ret = new Data();
 		ret.setData(compareResourceData(resource,commitSha));
 		return ret;
 	}
 
-	private static List<ResourceData> compareResourceData(ResourcesEnum resource,String commitSha) throws Exception {
+	private static List<ResourceData> compareResourceData(ResourcesEnum resource,String commitSha) throws IOException{
 		Data apiData = getDataFromAPI(resource.getUrlPath());
 		Data oldApiData = getDataFromAPI("https://raw.githubusercontent.com/coronasafe/life/"+commitSha+"/data/"+resource.getResource()+"_v2.json");
 
@@ -309,16 +319,17 @@ public class FirebaseUtil {
 	}
 
 	public static String addWebhookData(String url) throws Exception {
-		CoronasafelifeFirestore coronasafeFirestore = new CoronasafelifeFirestore();
-		coronasafeFirestore.addWebhookData(url);
-		coronasafeFirestore.close();
+		try(CoronasafelifeFirestore coronasafeFirestore = new CoronasafelifeFirestore()){
+			coronasafeFirestore.addWebhookData(url);
+		}
 		return "Webhook added for "+url;
 	}
 
 	public static List<String> getAllWebhookData() throws Exception {
-		CoronasafelifeFirestore coronasafeFirestore = new CoronasafelifeFirestore();
-		List<String> webhooks = coronasafeFirestore.getAllWebhookData();
-		coronasafeFirestore.close();
+		List<String> webhooks = null;
+		try(CoronasafelifeFirestore coronasafeFirestore = new CoronasafelifeFirestore()){
+			webhooks = coronasafeFirestore.getAllWebhookData();
+		}
 		return webhooks;
 	}
 }
