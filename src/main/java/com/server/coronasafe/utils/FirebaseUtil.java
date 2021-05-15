@@ -44,10 +44,10 @@ public class FirebaseUtil {
 
 	static {
 		try {
-			GoogleCredentials credentials = GoogleCredentials.fromStream(new ByteArrayInputStream(System.getenv("FIREBASE_JSON").getBytes()))
-					.createScoped(Lists.newArrayList("https://www.googleapis.com/auth/cloud-platform"));
+//			GoogleCredentials credentials = GoogleCredentials.fromStream(new ByteArrayInputStream(System.getenv("FIREBASE_JSON").getBytes()))
+//					.createScoped(Lists.newArrayList("https://www.googleapis.com/auth/cloud-platform"));
 			FirebaseOptions options = FirebaseOptions.builder()
-					.setCredentials(credentials)
+					.setCredentials(GoogleCredentials.fromStream(new ByteArrayInputStream(System.getenv("FIREBASE_JSON").getBytes())))
 					.setDatabaseUrl("https://"+System.getenv("PROJECT_ID")+".firebaseio.com/")
 					.build();
 
