@@ -197,8 +197,6 @@ public class FirebaseUtil {
 		Notification notification = Notification.builder()
 				.setTitle("Oxygen updated !")
 				.setBody("Hemkunt Foundation \n Kochi, Kerala").build();
-		ObjectMapper oMapper = new ObjectMapper();
-		oMapper.setSerializationInclusion(Include.NON_NULL);
 
 		Message message = Message.builder()
 				.setNotification(notification)
